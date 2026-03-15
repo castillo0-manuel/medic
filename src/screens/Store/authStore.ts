@@ -10,9 +10,6 @@ import {
 } from 'firebase/auth';
 import { doc, setDoc, deleteDoc, getDoc, updateDoc, addDoc, collection, Timestamp } from 'firebase/firestore';
 import { auth, db } from '../Services/firebase';
-import AsyncStorage from '@react-native-async-storage/async-storage';
-
-const USER_DATA_KEY = 'medireminder_user_data';
 
 interface UserData {
   uid: string;
@@ -43,8 +40,6 @@ interface AuthState {
   sendPasswordReset: (email: string) => Promise<void>;
   updatePhotoUri: (uri: string) => Promise<void>;
   clearError: () => void;
-  updateUserData: (partial: Partial<UserData>) => void;
-  loadCachedUserData: () => Promise<void>;
 }
 
 export const useAuthStore = create<AuthState>((set, get) => ({
@@ -91,25 +86,6 @@ export const useAuthStore = create<AuthState>((set, get) => ({
   },
 
   clearError: () => set({ error: null }),
-
-  updateUserData: (partial) => {
-    const { userData } = get();
-    if (userData) {
-      const updated = { ...userData, ...partial };
-      set({ userData: updated });
-      AsyncStorage.setItem(USER_DATA_KEY, JSON.stringify(updated)).catch(() => {});
-    }
-  },
-
-  loadCachedUserData: async () => {
-    try {
-      const raw = await AsyncStorage.getItem(USER_DATA_KEY);
-      if (raw) {
-        const cached = JSON.parse(raw);
-        set({ userData: cached });
-      }
-    } catch {}
-  },
 
   register: async (email, password, name) => {
     set({ loading: true, error: null });
@@ -160,7 +136,6 @@ export const useAuthStore = create<AuthState>((set, get) => ({
 
   logout: async () => {
     await signOut(auth);
-    await AsyncStorage.removeItem(USER_DATA_KEY);
     set({ user: null, userData: null });
   },
 
@@ -171,7 +146,6 @@ export const useAuthStore = create<AuthState>((set, get) => ({
     try {
       await deleteDoc(doc(db, 'users', user.uid));
       await deleteUser(user);
-      await AsyncStorage.removeItem(USER_DATA_KEY);
       set({ user: null, userData: null, loading: false });
     } catch (error: any) {
       set({ error: getErrorMessage(error.code), loading: false });
@@ -208,9 +182,7 @@ export const useAuthStore = create<AuthState>((set, get) => ({
         data.medsEverAdded = data.medsEverAdded ?? 0;
         data.profilesEverAdded = data.profilesEverAdded ?? 1;
       }
-      const userData = data as UserData;
-      set({ userData });
-      AsyncStorage.setItem(USER_DATA_KEY, JSON.stringify(userData)).catch(() => {});
+      set({ userData: data as UserData });
     }
   },
 }));
