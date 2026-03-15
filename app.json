@@ -1,0 +1,35 @@
+{
+  "expo": {
+    "name": "MediReminder",
+    "slug": "medireminder",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "userInterfaceStyle": "automatic",
+    "ios": {
+      "supportsTablet": false,
+      "bundleIdentifier": "com.tuempresa.medireminder"
+    },
+    "android": {
+      "package": "com.tuempresa.medireminder",
+      "permissions": [
+        "NOTIFICATIONS",
+        "RECEIVE_BOOT_COMPLETED",
+        "VIBRATE"
+      ]
+    },
+    "plugins": [
+      [
+        "expo-notifications",
+        {
+          "color": "#2E7D32"
+        }
+      ]
+    ],
+    "extra": {
+      "eas": {
+        "projectId": "3e36b448-e236-49ac-b15e-bb13cec813f8"
+      }
+    },
+    "owner": "joseman"
+  }
+}
