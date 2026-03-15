@@ -3,7 +3,6 @@ import {
   View, Text, TextInput, TouchableOpacity, StyleSheet,
   ScrollView, KeyboardAvoidingView, Platform, Alert, Switch, Image,
 } from 'react-native';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import * as ImagePicker from 'expo-image-picker';
 import { useMedStore, MEDICATION_COLORS, MEDICATION_EMOJIS } from '../Store/medStore';
 import type { Medication } from '../Store/medStore';
@@ -45,7 +44,6 @@ export default function AddMedScreen({ navigation, route }: any) {
   const { isDarkMode } = useSettingsStore();
   const { activeProfileId, profiles } = useFamilyStore();
   const theme = isDarkMode ? darkTheme : lightTheme;
-  const insets = useSafeAreaInsets();
 
   const activeProfile = profiles.find(p => p.id === activeProfileId);
 
@@ -133,7 +131,7 @@ export default function AddMedScreen({ navigation, route }: any) {
       behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
     >
       {/* Header */}
-      <View style={[styles.header, { backgroundColor: theme.surface, borderBottomColor: theme.border, paddingTop: insets.top + 12 }]}>
+      <View style={[styles.header, { backgroundColor: theme.surface, borderBottomColor: theme.border }]}>
         <TouchableOpacity onPress={() => navigation.goBack()}>
           <Text style={[styles.backButton, { color: theme.primary }]}>← Cancelar</Text>
         </TouchableOpacity>
@@ -415,7 +413,7 @@ export default function AddMedScreen({ navigation, route }: any) {
           </Text>
         </TouchableOpacity>
 
-        <View style={{ height: 40 + insets.bottom }} />
+        <View style={{ height: 40 }} />
       </ScrollView>
     </KeyboardAvoidingView>
   );
@@ -425,7 +423,7 @@ const styles = StyleSheet.create({
   container: { flex: 1 },
   header: {
     flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center',
-    padding: 16, paddingTop: 16, borderBottomWidth: 1,
+    padding: 16, paddingTop: 56, borderBottomWidth: 1,
   },
   headerTitle: { fontSize: 17, fontWeight: '700' },
   headerProfile: { fontSize: 12, fontWeight: '600', marginTop: 2 },

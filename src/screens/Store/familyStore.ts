@@ -5,9 +5,6 @@ import {
 } from 'firebase/firestore';
 import { db } from '../Services/firebase';
 import { useAuthStore } from './authStore';
-import AsyncStorage from '@react-native-async-storage/async-storage';
-
-const ACTIVE_PROFILE_KEY = 'medireminder_active_profile';
 
 export interface FamilyProfile {
   id: string;
@@ -48,7 +45,6 @@ interface FamilyState {
   setActiveProfile: (id: string) => void;
   migrateLegacyMedications: (userId: string, mainProfileId: string) => Promise<void>;
   clearError: () => void;
-  loadCachedProfile: () => Promise<void>;
 }
 
 export const useFamilyStore = create<FamilyState>((set, get) => ({
@@ -58,16 +54,6 @@ export const useFamilyStore = create<FamilyState>((set, get) => ({
   error: null,
 
   clearError: () => set({ error: null }),
-
-  loadCachedProfile: async () => {
-    try {
-      const cached = await AsyncStorage.getItem(ACTIVE_PROFILE_KEY);
-      if (cached) {
-        const { activeProfileId, profiles } = JSON.parse(cached);
-        set({ activeProfileId, profiles: profiles || [] });
-      }
-    } catch {}
-  },
 
   fetchProfiles: async (userId) => {
     set({ loading: true });
@@ -93,7 +79,6 @@ export const useFamilyStore = create<FamilyState>((set, get) => ({
         : (mainProfile?.id || null);
 
       set({ profiles, loading: false, activeProfileId: newActiveId });
-      AsyncStorage.setItem(ACTIVE_PROFILE_KEY, JSON.stringify({ activeProfileId: newActiveId, profiles })).catch(() => {});
 
       if (mainProfile) {
         get().migrateLegacyMedications(userId, mainProfile.id);
@@ -158,11 +143,7 @@ export const useFamilyStore = create<FamilyState>((set, get) => ({
     }
   },
 
-  setActiveProfile: (id) => {
-    set({ activeProfileId: id });
-    const { profiles } = get();
-    AsyncStorage.setItem(ACTIVE_PROFILE_KEY, JSON.stringify({ activeProfileId: id, profiles })).catch(() => {});
-  },
+  setActiveProfile: (id) => set({ activeProfileId: id }),
 
   migrateLegacyMedications: async (userId, mainProfileId) => {
     try {
